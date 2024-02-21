@@ -76,3 +76,9 @@ read_xlsx("data/Data1.xlsx", sheet = "Sites") %>% select(SitePoint, PercentRock,
 ```{r}
 read_xlsx("data/Data1.xlsx", sheet = "Sites") %>% select(SitePoint, PercentRock, WaterPH) %>% left_join(sr, by = "SitePoint") %>% GGally::ggpairs(columns = 2:ncol(.))
 ```
+
+## Print plot
+
+```{r}
+print(last_plot())
+```
