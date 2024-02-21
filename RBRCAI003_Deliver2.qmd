@@ -1,0 +1,78 @@
+---
+title: "Deliver2"
+format: docx
+editor: visual
+---
+
+## Importing data
+
+```{r}
+library(tidyverse)
+library(readxl) 
+library(GGally)
+```
+
+## Reading in data
+
+```{r}
+list.files("data")
+```
+
+## See what sheets are in the Excel workbook
+
+```{r}
+excel_sheets("data/Data1.xlsx")
+```
+
+## Read in data
+
+```{r}
+edat1 <- read_xlsx("data/Data1.xlsx", sheet = "Sites") 
+
+edat2 <- read_xlsx("data/Data1.xlsx", sheet = "Species")
+```
+
+## Print a summary
+
+```{r}
+edat1
+edat2
+```
+
+## Getting things tidy
+
+## Getting data into wide format
+
+```{r}
+read_xlsx("data/Data1.xlsx", sheet = "Species") %>% select(Site, Point, WorkingName)
+
+read_xlsx("data/Data1.xlsx", sheet = "Species") %>% select(Site, Point, WorkingName) %>% mutate(Presence = 1) %>% pivot_wider(names_from = WorkingName, values_from = Presence, values_fill = 0)
+```
+
+## Getting data into long format
+
+```{r}
+read_xlsx("data/Data1.xlsx", sheet = "Sites") %>% pivot_longer(cols = c("PercentRock", "WaterPH", "WaterTemp"), names_to = "variable", values_to = "value")
+```
+
+## Unite and seperate
+
+```{r}
+read_xlsx("data/Data1.xlsx", sheet = "Species") %>% unite("SitePoint", Site:Point, sep = "_") %>% select(SitePoint, WorkingName) %>% mutate(Presence = 1) %>% pivot_wider(names_from = WorkingName, values_from = Presence, values_fill = 0)
+```
+
+## Joining dataframes
+
+```{r}
+sr <- read_xlsx("data/Data1.xlsx", sheet = "Species") %>% unite("SitePoint", Site:Point, sep = "_") %>% select(SitePoint, WorkingName) %>% group_by(SitePoint) %>% summarize('Species Number' = n())
+
+sr
+
+read_xlsx("data/Data1.xlsx", sheet = "Sites") %>% select(SitePoint, PercentRock, WaterPH) %>% left_join(sr, by = "SitePoint")
+```
+
+## Making plots
+
+```{r}
+read_xlsx("data/Data1.xlsx", sheet = "Sites") %>% select(SitePoint, PercentRock, WaterPH) %>% left_join(sr, by = "SitePoint") %>% GGally::ggpairs(columns = 2:ncol(.))
+```
